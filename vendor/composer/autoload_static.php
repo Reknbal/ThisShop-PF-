@@ -7,6 +7,13 @@ namespace Composer\Autoload;
 class ComposerStaticInite875ae8441d070d7dda5f4b47a2117aa
 {
     public static $files = array (
+        '07d7f1a47144818725fd8d91a907ac57' => __DIR__ . '/..' . '/laminas/laminas-diactoros/src/functions/create_uploaded_file.php',
+        'da94ac5d3ca7d2dbab84ce561ce72bfd' => __DIR__ . '/..' . '/laminas/laminas-diactoros/src/functions/marshal_headers_from_sapi.php',
+        '3d97c8dcdfba8cb85d3b34f116bb248b' => __DIR__ . '/..' . '/laminas/laminas-diactoros/src/functions/marshal_method_from_sapi.php',
+        'e6f3bc6883e449ab367280b34158c05b' => __DIR__ . '/..' . '/laminas/laminas-diactoros/src/functions/marshal_protocol_version_from_sapi.php',
+        'de95e0ac670b27c84ef8c5ac41fc1b34' => __DIR__ . '/..' . '/laminas/laminas-diactoros/src/functions/normalize_server.php',
+        'b6c2870932b0250c10334a86dcb33c7f' => __DIR__ . '/..' . '/laminas/laminas-diactoros/src/functions/normalize_uploaded_files.php',
+        'd02cf21124526632320d6f20b1bbf905' => __DIR__ . '/..' . '/laminas/laminas-diactoros/src/functions/parse_cookie_header.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
@@ -21,7 +28,19 @@ class ComposerStaticInite875ae8441d070d7dda5f4b47a2117aa
         ),
         'P' => 
         array (
+            'Psr\\Http\\Message\\' => 17,
+            'Psr\\Container\\' => 14,
             'PhpOption\\' => 10,
+        ),
+        'M' => 
+        array (
+            'MiladRahimi\\PhpRouter\\' => 22,
+            'MiladRahimi\\PhpContainer\\Tests\\' => 31,
+            'MiladRahimi\\PhpContainer\\' => 25,
+        ),
+        'L' => 
+        array (
+            'Laminas\\Diactoros\\' => 18,
         ),
         'G' => 
         array (
@@ -46,9 +65,34 @@ class ComposerStaticInite875ae8441d070d7dda5f4b47a2117aa
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-ctype',
         ),
+        'Psr\\Http\\Message\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
+        ),
+        'Psr\\Container\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/container/src',
+        ),
         'PhpOption\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption',
+        ),
+        'MiladRahimi\\PhpRouter\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/miladrahimi/phprouter/src',
+        ),
+        'MiladRahimi\\PhpContainer\\Tests\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/miladrahimi/phpcontainer/tests',
+        ),
+        'MiladRahimi\\PhpContainer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/miladrahimi/phpcontainer/src',
+        ),
+        'Laminas\\Diactoros\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/laminas/laminas-diactoros/src',
         ),
         'GrahamCampbell\\ResultType\\' => 
         array (
