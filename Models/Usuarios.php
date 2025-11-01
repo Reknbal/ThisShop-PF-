@@ -101,6 +101,38 @@ class Usuarios{
         }
     }
 
+    //Método pago
+    public function pagoMembresia($membresia,$email,$data){
+        //obtengo el usuario por email, primero
+        $query1 = 'SELECT id_usuario FROM usuarios WHERE email = ?';
+        $stmt = $this->con->prepare($query1);
+        $stmt->bind_param('s',$email); 
+
+        $res = $stmt->get_result();
+
+        if($res->num_rows > 0){
+            $fila = $res->fetch_assoc();
+            $id_usu = $fila['id_usuario'];
+
+            if($membresia = 1){
+            $query = 'INSERT INTO pagos (fecha_pago, monto_pago, metodo_pago, id_usuario) VALUES (?,?,?,?)';
+            
+            try {
+                $stmt = $this->con->prepare($query);
+                $stmt->bind_param('idsi',$data['fecha_pago'],$data['monto_pago'],$data['metodo_pago'],$id_usu);
+                $stmt->execute();
+
+                if($stmt->error){
+                    throw new Exception('Error al cargar el pago');
+                }
+            } catch (\Throwable $th) {
+                return ['message' => $th->getMessage()];
+            }
+        }
+        }
+        
+
+    }
     //Método update: contraseña
     public function updatePass($email,$newPass){
         

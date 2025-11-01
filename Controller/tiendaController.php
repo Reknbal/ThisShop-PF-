@@ -1,44 +1,57 @@
 <?php
 
 use Laminas\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\ServerRequest;
 
 require_once __DIR__ . '/../Models/Tiendas.php';
 
 class tiendasController{
-    protected $con;
 
-    public function __construct()
-    {
-        $this->con = Database::connect();
+    //Obtener las tiendas
+    public function getTiendas($categoria = null){
+        $tienda = new Tiendas;
+
+        if(!is_null($categoria)){
+            return new JsonResponse($tienda->getTiendas($categoria));
+        }
+
+        return new JsonResponse($tienda->getTiendas());
     }
 
-    public function getTiendas($categoria = null){
-        try {
-            if (!is_null($categoria)){
-                $query = 'SELECT * FROM tiendas WHERE categorias = ? ORDER BY membresia DESC';
-                $stmt = $this->con->prepare($query);
-                $stmt->bind_param('s',$categoria);
-            }else{
-                $query = 'SELECT * FROM tiendas ORDER BY membresia DESC';
-            }
-            $stmt->execute();
+    public function createTiendas(ServerRequest $request){
+        $data = $request->getParsedBody();
 
-            if($stmt->error){
-                throw new Exception('Error al mostrar tiendas');
-            }
-
-            $res = $stmt->get_result();
-            $data_arr = [];
-
-            if ($res->num_rows > 0){
-                while($data = $res->fetch_assoc()){
-                    array_push($data_arr,$data);
-                }
-                return $data_arr;
-            }
-            return $data_arr;
-        } catch (\Throwable $th) {
-            return new JsonResponse(['message' => $th->getMessage()]);
+        if(empty($data)){
+            $json = $request->getBody()->getContents();
+            $data = json_decode($json);
         }
+
+        $nombre_negocio = $data->nombre_negocio;
+        $descripcion = $data->descripcion;
+        $imagen = $data->imagen;
+        $direccion = $data->direccion;
+        
+        if(!preg_match('/^(?=.*[a-z])(?=.*[A-Z])[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/u',$nombre_negocio)){
+            return new JsonResponse('Error en el nombre del negocio');
+        }
+        if(!preg_match('/^.+$/s',$descripcion)){
+            return new JsonResponse('Error en la descripción del negocio');
+        }
+        if(!preg_match('/^https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp)$/i',$imagen)){
+            return new JsonResponse('Error en la imagen ingresada');
+        }
+        if(!preg_match('/^[A-Za-zÀ-ÿ0-9\s\.,°º#\-]{5,100}$/',$direccion)){
+            return new JsonResponse('Error en la dirección ingresada');
+        }
+
+        $data_arr = [
+            'nombre_negocio' => $nombre_negocio,
+            'descripcion' => $descripcion,
+            'imagen' => $imagen,
+            'direccion' => $direccion
+        ];
+
+        $tienda = new Tiendas;
+        return new JsonResponse($tienda->create($data_arr));
     }
 }
