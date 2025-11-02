@@ -7,5 +7,8 @@ class Usuarios{
     public function delete($id){
         
     }
+public function update($id,$data){
+
+}
 }
 ?>

@@ -24,6 +24,17 @@ public function delete($id){
      return new JsonResponse($usuario->delete($id_ent));
 
 }
+public function update(ServerRequest $request, $id){
+    //completar
+    if(!preg_match('/^[1-9]\d*$/',$id))
+    {   
+        return new JsonResponse(['Message'=>'Error id inválido']);
+    }
+    $id_ent= (int) $id;
+    $usuario=new Usuarios;
+     //return new JsonResponse($usuario->delete($id_ent));
+
+}
 }
 
 
