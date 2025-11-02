@@ -26,7 +26,7 @@ $router->get('/', function () {
 //Métodos para los negocios
 $router->get('/tiendas',[tiendasController::class,'getTiendas']);
 $router->post('/tiendas',[tiendasController::class,'createTiendas']);
-$router->put('/tiendas',[tiendasController::class,'updateTienda']);
+$router->patch('/tiendas',[tiendasController::class,'updateTienda']);
 $router->delete('/tiendas',[tiendasController::class,'deleteTienda']);
 
 $router->dispatch();
