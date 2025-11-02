@@ -1,4 +1,5 @@
 <?php
+require_once './vendor/autoload.php';
 require_once 'Controller/categoriaControlador.php';
 require_once 'Controller/tiendaController.php';
 require_once 'Controller/usuarioController.php';
@@ -22,7 +23,10 @@ $router->get('/', function () {
     return new JsonResponse(['message' => 'ok']);
 });
 
-//Get tiendas
+//Métodos para los negocios
 $router->get('/tiendas',[tiendasController::class,'getTiendas']);
+$router->post('/tiendas',[tiendasController::class,'createTiendas']);
+$router->put('/tiendas',[tiendasController::class,'updateTienda']);
+$router->delete('/tiendas',[tiendasController::class,'deleteTienda']);
 
 $router->dispatch();

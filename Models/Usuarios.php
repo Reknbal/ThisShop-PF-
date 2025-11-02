@@ -63,7 +63,7 @@ class Usuarios{
     //Registro de usuario
     public function createUser($data, $membresia = null)
     {
-        $query = 'INSERT INTO usuarios (nombre_usuario, email, password) VALUES (?,?,?)';
+        $query = 'INSERT INTO usuarios (dni_usuario,nombre_usuario,nombreCompleto,num_telefono, email, password) VALUES (?,?,?)';
         
         try {
             $hashed_pass = password_hash($data['password'], PASSWORD_DEFAULT);
