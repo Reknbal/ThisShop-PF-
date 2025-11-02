@@ -26,10 +26,21 @@ public function delete($id){
 }
 public function update(ServerRequest $request, $id){
     //completar
+    $data=$request->getParsedBody();
+    if(empty($data)){
+        $json=$request->getBody()->getContents();
+        $data= json_decode($json) ?? [];
+    }
+    $nombre=$data->nombre,
+    $planUsuario=$data->planUsuario,
+    $num_Telefono=$data->num_Telefono,
+
+
     if(!preg_match('/^[1-9]\d*$/',$id))
     {   
         return new JsonResponse(['Message'=>'Error id inválido']);
     }
+
     $id_ent= (int) $id;
     $usuario=new Usuarios;
      //return new JsonResponse($usuario->delete($id_ent));
