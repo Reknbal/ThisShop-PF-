@@ -119,7 +119,7 @@ class Usuarios{
             
             try {
                 $stmt = $this->con->prepare($query);
-                $stmt->bind_param('idsi',$data['fecha_pago'],$data['monto_pago'],$data['metodo_pago'],$id_usu);
+                $stmt->bind_param('sdsi',$data['fecha_pago'],$data['monto_pago'],$data['metodo_pago'],$id_usu);
                 $stmt->execute();
 
                 if($stmt->error){
@@ -167,16 +167,17 @@ class Usuarios{
         if(empty($user)){
             return ['message' => 'Usuario no encontrado o no existente'];
         }
-        $query = 'UPDATE usuarios SET dni_usuario ?, nombre_usuario ?,nombreCompleto ?, num_telefono ? WHERE usuarios email = ?';
+        $query = 'UPDATE usuarios SET dni_usuario = ?, nombre_usuario = ?,nombreCompleto = ?, num_telefono = ? WHERE usuarios email = ?';
 
         try {
             $stmt = $this->con->prepare($query);
-            $stmt->bind_param('isss',$data['dni_usuario'],$data['nombre_usuario'],$data['nombreCompleto'],$data['num_telefono']);
+            $stmt->bind_param('issss',$data['dni_usuario'],$data['nombre_usuario'],$data['nombreCompleto'],$data['num_telefono'],$email);
             $stmt->execute();
 
             if($stmt->error){
                 throw new Exception('Error al actualizar datos');
             }
+            return $stmt->affected_rows;
         } catch (\Throwable $th) {
             return ['message' => $th->getMessage()];
         }

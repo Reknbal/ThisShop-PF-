@@ -2,6 +2,9 @@
 
 use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\ServerRequest;
+use Cloudinary\Configuration\Configuration;
+use Cloudinary\Api\Upload\Uploader;
+
 
 require_once __DIR__ . '/../Models/Tiendas.php';
 
@@ -28,7 +31,6 @@ class tiendasController{
 
         $nombre_negocio = $data->nombre_negocio;
         $descripcion = $data->descripcion;
-        $imagen = $data->imagen;
         $direccion = $data->direccion;
         
         if(!preg_match('/^(?=.*[a-z])(?=.*[A-Z])[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/u',$nombre_negocio)){
@@ -37,17 +39,37 @@ class tiendasController{
         if(!preg_match('/^.+$/s',$descripcion)){
             return new JsonResponse('Error en la descripción del negocio');
         }
-        if(!preg_match('/^https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp)$/i',$imagen)){
-            return new JsonResponse('Error en la imagen ingresada');
-        }
         if(!preg_match('/^[A-Za-zÀ-ÿ0-9\s\.,°º#\-]{5,100}$/',$direccion)){
             return new JsonResponse('Error en la dirección ingresada');
         }
 
+        //Uso Cloudinary acá
+        $uploadedFiles = $request->getUploadedFiles();
+        $imagenFile = $uploadedFiles['imagen'] ?? null;
+        $url_imagen = null;
+
+        if ($imagenFile && $imagenFile->getError() === UPLOAD_ERR_OK) {
+            require_once __DIR__ . '/../config/cloudinary.php';
+            $tmpFilePath = $imagenFile->getStream()->getMetadata('uri');
+
+            try {
+                $uploadResult = Uploader::upload($tmpFilePath, [
+                    "folder" => "negocios"
+                ]);
+                $url_imagen = $uploadResult['secure_url'];
+            } catch (Exception $e) {
+                return new JsonResponse(['error' => 'Error al subir la imagen: ' . $e->getMessage()]);
+            }
+        } else {
+            return new JsonResponse(['error' => 'Debe enviar una imagen válida']);
+        }
+
+
+        //Guardo todo normal
         $data_arr = [
             'nombre_negocio' => $nombre_negocio,
             'descripcion' => $descripcion,
-            'imagen' => $imagen,
+            'imagen' => $url_imagen,
             'direccion' => $direccion
         ];
 
@@ -70,7 +92,6 @@ class tiendasController{
         }
         $nombre_negocio = $data->nombre_negocio;
         $descripcion = $data->descripcion;
-        $imagen = $data->imagen;
         $direccion = $data->direccion;
         
         if(!preg_match('/^(?=.*[a-z])(?=.*[A-Z])[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/u',$nombre_negocio)){
@@ -79,22 +100,45 @@ class tiendasController{
         if(!preg_match('/^.+$/s',$descripcion)){
             return new JsonResponse('Error en la descripción del negocio');
         }
-        if(!preg_match('/^https?:\/\/[^\s]+\.(jpg|jpeg|png|gif|webp)$/i',$imagen)){
-            return new JsonResponse('Error en la imagen ingresada');
-        }
         if(!preg_match('/^[A-Za-zÀ-ÿ0-9\s\.,°º#\-]{5,100}$/',$direccion)){
             return new JsonResponse('Error en la dirección ingresada');
         }
 
+        //Traigo la tienda actual
+        $tienda = new Tiendas;
+        $tiendaAct = $tienda->getOne($id_al);
+
+        if(empty($tiendaAct)){
+            return new JsonResponse(['error' => 'Tienda no encontrada']);
+        }
+
+        //Vuelvo a hacer lo mismo de arriba
+        $uploadedFiles = $request->getUploadedFiles();
+        $imagenFile = $uploadedFiles['imagen'] ?? null;
+        $url_imagen = $tiendaAct['imagen'];
+
+        if ($imagenFile && $imagenFile->getError() === UPLOAD_ERR_OK) {
+            require_once __DIR__ . '/../config/cloudinary.php';
+            $tmpFilePath = $imagenFile->getStream()->getMetadata('uri');
+
+            try {
+                $uploadResult = Uploader::upload($tmpFilePath, [
+                    "folder" => "negocios"
+                ]);
+                $url_imagen = $uploadResult['secure_url'];
+            } catch (Exception $e) {
+                return new JsonResponse(['error' => 'Error al reemplazar la imagen: ' . $e->getMessage()]);
+            }
+        }
+        //Actualizo el array
         $data_arr = [
             'nombre_negocio' => $nombre_negocio,
             'descripcion' => $descripcion,
-            'imagen' => $imagen,
+            'imagen' => $url_imagen,
             'direccion' => $direccion
         ];
 
-        $tienda = new Tiendas;
-        return new JsonResponse($tienda->updateTienda($data_arr,$id_al));
+        return new JsonResponse($tienda->updateTienda($data_arr, $id_al));
     }
 
     public function deleteTienda($id){
