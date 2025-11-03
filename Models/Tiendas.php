@@ -77,8 +77,54 @@ public function getOne($id){
   
 }
 public function create($data){
+    $query="INSERT INTO negocio(nombre_negocio,descripcion,imagen_neg,direccion,negocioCategoria,negocioUsuario) VALUES (?,?,?,?,?,?)";
+    try{
+        $stmt=$this->con->prepare($query);
+        $stmt->bind_param('ssssii',$data['nombre_negocio'],$data['descripcion'],$data['imagen_neg'],$data['direccion'],$data['negocioCategoria'],$data['negocioUsuario']);
+        $stmt->execute();
 
+        if($stmt->error){
+            throw new Exception('Error al almacenar datos');
+    }
+    return ['Message'=>'Datos almacenados correctamente'];
+}
+    catch(\Throwable $th){
+        return new JsonResponse(['Message'=>$th->getMessage()]);
+    }
+}
 
+public function update($id,$data){
+       $query="UPDATE negocio SET nombre_negocio = ?, descripcion = ?, imagen_neg = ?, direccion = ?, negocioCategoria = ?, negocioUsuario = ?  WHERE id_negocio=?";
+    try{
+        $stmt=$this->con->prepare($query);
+        $stmt->bind_param('ssssiii',$data['nombre_negocio'],$data['descripcion'],$data['imagen_neg'],$data['direccion'],$data['negocioCategoria'],$data['negocioUsuario'],$id);
+        $stmt->execute();
+
+        if($stmt->error){
+            throw new Exception('Error al actualizar los datos');
+    }
+    return ['Message'=>'Datos actualizados correctamente'];
+}
+    catch(\Throwable $th){
+        return new JsonResponse(['Message'=>$th->getMessage()]);
+    }
+}
+
+public function delete($id){
+       $query="DELETE FROM negocio WHERE id_negocio=?";
+    try{
+        $stmt=$this->con->prepare($query);
+        $stmt->bind_param('i',$id);
+        $stmt->execute();
+
+        if($stmt->error){
+            throw new Exception('Error al eliminar los datos');
+    }
+    return ['Message'=>'Datos eliminados correctamente'];
+}
+    catch(\Throwable $th){
+        return new JsonResponse(['Message'=>$th->getMessage()]);
+    }
 }
 }
 ?>

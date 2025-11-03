@@ -4,14 +4,16 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\ServerRequest;
 
 class UsuarioController{
-public function get($id){
-$id_ent= (int) $id;
-
-if($id_ent>0){
-    $usuario= new Usuarios;
-    return new JsonResponse($usuario->get($id));
+public function get($email){
+//CORREGIR. NO ES POR ID ES POR EMAIL.
+//agregar preg y listo   
+    
+if(!preg_match('',$email))
+{
+return new JsonResponse(['Message'=>'Error no es un email válido']);
 }
-return new JsonResponse(['Message'=>'Error identificador invalido']);
+    $usuario= new Usuarios;
+    return new JsonResponse($usuario->getUserEmail($email));
 }
 
 public function delete($id){
@@ -31,16 +33,37 @@ public function update(ServerRequest $request, $id){
         $json=$request->getBody()->getContents();
         $data= json_decode($json) ?? [];
     }
-    $nombre=$data->nombre,
-    $planUsuario=$data->planUsuario,
-    $num_Telefono=$data->num_Telefono,
+    $nombre = $data->nombre;
+    $dni_usuario= $data->dni_usuario;
+    $nombreCompleto = $data->nombreCompleto;
+    $num_Telefono = $data->num_Telefono;
 
-
+    // controlo id
     if(!preg_match('/^[1-9]\d*$/',$id))
     {   
         return new JsonResponse(['Message'=>'Error id inválido']);
     }
-
+    //valido nombre user
+    if(!preg_match('',$nombre))
+    {   
+        return new JsonResponse(['Message'=>'Error nombre de usuario inválido']);
+    }
+    //valido dni
+    if(!preg_match('',$dni_usuario))
+    {   
+        return new JsonResponse(['Message'=>'Error DNI inválido']);
+    }
+    //VALIDO NOMBRE COMPLETO REAL
+    if(!preg_match('',$nombreCompleto))
+    {   
+        return new JsonResponse(['Message'=>'Error id inválido']);
+    }
+    //VALIDO NUM CELULAR
+    if(!preg_match('',$num_Telefono))
+    {   
+        return new JsonResponse(['Message'=>'Error numero de telefono inválido']);
+    }
+    
     $id_ent= (int) $id;
     $usuario=new Usuarios;
      //return new JsonResponse($usuario->delete($id_ent));
