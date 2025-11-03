@@ -3,8 +3,9 @@
 use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\ServerRequest;
 use Cloudinary\Configuration\Configuration;
-use Cloudinary\Api\Upload\Uploader;
+use Cloudinary\Api\Upload\UploadApi;
 
+require_once __DIR__ . '/../Settings/cloudinary.php';
 
 require_once __DIR__ . '/../Models/Tiendas.php';
 
@@ -49,12 +50,12 @@ class tiendasController{
         $url_imagen = null;
 
         if ($imagenFile && $imagenFile->getError() === UPLOAD_ERR_OK) {
-            require_once __DIR__ . '/../config/cloudinary.php';
+            require_once __DIR__ . '/../Settings/cloudinary.php';
             $tmpFilePath = $imagenFile->getStream()->getMetadata('uri');
 
             try {
-                $uploadResult = Uploader::upload($tmpFilePath, [
-                    "folder" => "negocios"
+                $uploadResult = (new UploadApi())->upload($tmpFilePath, [
+                "folder" => "negocios"
                 ]);
                 $url_imagen = $uploadResult['secure_url'];
             } catch (Exception $e) {
@@ -112,19 +113,30 @@ class tiendasController{
             return new JsonResponse(['error' => 'Tienda no encontrada']);
         }
 
-        //Vuelvo a hacer lo mismo de arriba
+        //EXPLICACIÓN CLOUDINARY
+        //Obtener todos los archivos enviados desde el formulario
         $uploadedFiles = $request->getUploadedFiles();
+        // Extrae el archivo específico del campo "imagen", 
+        // Si no se subió nada, guarda null (por el operador ??).
         $imagenFile = $uploadedFiles['imagen'] ?? null;
+        // Guarda temporalmente la URL de la imagen actual en caso de que no se suba una nueva
         $url_imagen = $tiendaAct['imagen'];
 
+        
+        //Verifico que el usuario haya subido una imagen y controlo que no haya errores
         if ($imagenFile && $imagenFile->getError() === UPLOAD_ERR_OK) {
-            require_once __DIR__ . '/../config/cloudinary.php';
+            require_once __DIR__ . '/../Settings/cloudinary.php';
+            // Obtiene la ruta temporal del archivo subido (en el servidor) para poder enviarlo a Cloudinary
             $tmpFilePath = $imagenFile->getStream()->getMetadata('uri');
 
             try {
-                $uploadResult = Uploader::upload($tmpFilePath, [
-                    "folder" => "negocios"
+                // Sube el archivo temporal a Cloudinary, dentro de la carpeta "negocios"
+                // La variable $uploadResult devuelve varios datos, entre ellos la URL segura
+
+                $uploadResult = (new UploadApi())->upload($tmpFilePath, [
+                "folder" => "negocios"
                 ]);
+                // Guarda la URL pública y segura que genera Cloudinary (para guardarla después en la base de datos)
                 $url_imagen = $uploadResult['secure_url'];
             } catch (Exception $e) {
                 return new JsonResponse(['error' => 'Error al reemplazar la imagen: ' . $e->getMessage()]);
