@@ -1,4 +1,5 @@
 <?php
+
 use Laminas\Diactoros\Response\JsonResponse;
 
 require_once __DIR__ . '/../Settings/db.php';
@@ -62,13 +63,13 @@ class Usuarios{
     //Registro de usuario
     public function createUser($data, $membresia = null)
     {
-        $query = 'INSERT INTO usuarios (dni_usuario,nombre_usuario,nombreCompleto,num_telefono, email, password) VALUES (?,?,?)';
+        $query = 'INSERT INTO usuarios (dni_usuario,nombre_usuario,nombreCompleto,num_telefono, email, password) VALUES (?,?,?,?,?,?)';
         
         try {
             $hashed_pass = password_hash($data['password'], PASSWORD_DEFAULT);
 
             $stmt = $this->con->prepare($query);
-            $stmt->bind_param('sss',$data['nombre'],$data['email'],$hashed_pass);
+            $stmt->bind_param('isssss',$data['nombre'],$data['email'],$hashed_pass);
             $stmt->execute();
 
             if($stmt->error){
@@ -118,7 +119,7 @@ class Usuarios{
             
             try {
                 $stmt = $this->con->prepare($query);
-                $stmt->bind_param('idsi',$data['fecha_pago'],$data['monto_pago'],$data['metodo_pago'],$id_usu);
+                $stmt->bind_param('sdsi',$data['fecha_pago'],$data['monto_pago'],$data['metodo_pago'],$id_usu);
                 $stmt->execute();
 
                 if($stmt->error){
@@ -158,9 +159,42 @@ class Usuarios{
         }
     }
 
+    //Update datos generales
+    public function updateUsuario($data,$email){
+        //Verifico si el usuario existe
+
+        $user = $this->getUserEmail($email);
+        if(empty($user)){
+            return ['message' => 'Usuario no encontrado o no existente'];
+        }
+        $query = 'UPDATE usuarios SET dni_usuario = ?, nombre_usuario = ?,nombreCompleto = ?, num_telefono = ? WHERE usuarios email = ?';
+
+        try {
+            $stmt = $this->con->prepare($query);
+            $stmt->bind_param('issss',$data['dni_usuario'],$data['nombre_usuario'],$data['nombreCompleto'],$data['num_telefono'],$email);
+            $stmt->execute();
+
+            if($stmt->error){
+                throw new Exception('Error al actualizar datos');
+            }
+            return $stmt->affected_rows;
+        } catch (\Throwable $th) {
+            return ['message' => $th->getMessage()];
+        }
+
+        return $stmt->affected_rows;
+
+    }
+
     //Eliminar usuario
     public function delete($email)
     {
+        //Verifico si el usuario existe
+        $user = $this->getUserEmail($email);
+        if(empty($user)){
+            return ['message' => 'Usuario no encontrado o no existente'];
+        }
+        
         $query = 'DELETE FROM usuarios WHERE email = ?';
 
         try {
@@ -177,4 +211,3 @@ class Usuarios{
         }
     }
 }
-?>
