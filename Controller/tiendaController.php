@@ -16,10 +16,10 @@ class tiendasController{
         $tienda = new Tiendas;
 
         if(!is_null($categoria)){
-            return new JsonResponse($tienda->getTiendas($categoria));
+            return new JsonResponse($tienda->getAll($categoria));
         }
 
-        return new JsonResponse($tienda->getTiendas());
+        return new JsonResponse($tienda->getAll());
     }
 
     public function createTiendas(ServerRequest $request){
@@ -150,7 +150,7 @@ class tiendasController{
             'direccion' => $direccion
         ];
 
-        return new JsonResponse($tienda->updateTienda($data_arr, $id_al));
+        return new JsonResponse($tienda->update($data_arr, $id_al));
     }
 
     public function deleteTienda($id){
@@ -160,6 +160,6 @@ class tiendasController{
         }
 
         $tienda = new Tiendas;
-        return new JsonResponse($tienda->deleteTienda($id_al));
+        return new JsonResponse($tienda->delete($id_al));
     }
 }

@@ -23,10 +23,15 @@ $router->get('/', function () {
     return new JsonResponse(['message' => 'ok']);
 });
 
-//Métodos para los negocios
+//Endpoints para los emprendimientos
 $router->get('/tiendas',[tiendasController::class,'getTiendas']);
 $router->post('/tiendas',[tiendasController::class,'createTiendas']);
 $router->patch('/tiendas',[tiendasController::class,'updateTienda']);
 $router->delete('/tiendas',[tiendasController::class,'deleteTienda']);
+
+//Endpoint para el pago
+
+//Endpoints para los usuarios
+
 
 $router->dispatch();
