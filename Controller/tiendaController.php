@@ -6,17 +6,23 @@ use Cloudinary\Configuration\Configuration;
 use Cloudinary\Api\Upload\UploadApi;
 
 require_once __DIR__ . '/../Settings/cloudinary.php';
-
 require_once __DIR__ . '/../Models/Tiendas.php';
+require_once __DIR__ . '/../Models/Usuarios.php';
 
 class tiendasController{
 
     //Obtener las tiendas
-    public function getTiendas($categoria = null){
+    public function getOne($categoria = null, $id_negocio = null, $nombre_negocio = null){
         $tienda = new Tiendas;
 
         if(!is_null($categoria)){
             return new JsonResponse($tienda->getAll($categoria));
+        }
+        if(!is_null($id_negocio)){
+            return new JsonResponse($tienda->getOne($id_negocio));
+        }
+        if(!is_null($nombre_negocio)){
+            return new JsonResponse($tienda->getOne($nombre_negocio));
         }
 
         return new JsonResponse($tienda->getAll());
@@ -161,5 +167,91 @@ class tiendasController{
 
         $tienda = new Tiendas;
         return new JsonResponse($tienda->delete($id_al));
+    }
+
+    //REDES
+    public function redesTiendas(ServerRequest $request,$membresia,$id_negocio,$email){
+        //Verifico si el negocio existe
+        $negocio = $this->getTiendas($id_negocio);
+        if(empty($negocio)){
+            return ['message' => 'Negocio no encontrado o no existente'];
+        }
+        
+        $membresia = new Usuarios;
+        $membresia->actMembresia($email);
+
+        if($membresia && $membresia = 1){
+            $data = $request->getParsedBody();
+            if(empty($data)){
+                $json = $request->getBody()->getContents();
+                $data = json_decode($json) ?? [];   
+            }
+
+            $instagram = $data->instagram;
+            $facebook = $data->facebook;
+            $tiktok = $data->tiktok;
+
+            if(!preg_match('^https?:\/\/(www\.)?facebook\.com\/[A-Za-z0-9\.]+\/?$',$instagram)){
+                return new JsonResponse(['message' => 'Error al ingresar la cuenta de Instagram']);
+            }
+            if(!preg_match('^https?:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._]+\/?$',$facebook)){
+                return new JsonResponse(['message' => 'Error al ingresar la cuenta de Facebook']);
+            }
+            if(!preg_match('^https?:\/\/(www\.)?tiktok\.com\/@[\w\.-]+\/?$',$tiktok)){
+                return new JsonResponse(['message' => 'Error al ingresar la cuenta de Tiktok']);
+            }
+
+            $data_arr = [
+                'instagram' => $instagram,
+                'facebook' => $facebook,
+                'tiktok' => $tiktok
+            ];
+            $tienda = new Tiendas;
+            return new JsonResponse($tienda->create($data_arr,$id_negocio));
+        }
+    }
+
+    public function redesUpdate(ServerRequest $request, $id){
+        $id_al = (int) $id;
+
+        if(!is_int($id_al) || intval($id_al) < 1){
+            return new JsonResponse(['message' => 'error en la consulta']);
+        }
+
+        $data = $request->getParsedBody();
+
+        if(empty($data)){
+            $json = $request->getBody()->getContents();
+            $data = json_decode($json) ?? [];
+        }
+
+        $instagram = $data->instagram;
+        $facebook = $data->facebook;
+        $tiktok = $data->tiktok;
+
+        if(!preg_match('^https?:\/\/(www\.)?facebook\.com\/[A-Za-z0-9\.]+\/?$',$instagram)){
+            return new JsonResponse(['message' => 'Error al ingresar la cuenta de Instagram']);
+        }
+        if(!preg_match('^https?:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._]+\/?$',$facebook)){
+            return new JsonResponse(['message' => 'Error al ingresar la cuenta de Facebook']);
+        }
+        if(!preg_match('^https?:\/\/(www\.)?tiktok\.com\/@[\w\.-]+\/?$',$tiktok)){
+            return new JsonResponse(['message' => 'Error al ingresar la cuenta de Tiktok']);
+        }
+
+        $data_arr = [
+            'instagram' => $instagram,
+            'facebook' => $facebook,
+            'tiktok' => $tiktok
+        ];
+        $tienda = new Tiendas;
+        return new JsonResponse($tienda->update($data_arr,$data));
+    }
+
+
+    public function getRedes()
+    {
+        $redes = new Tiendas;
+        return new JsonResponse($redes->getOne($id_negocio));
     }
 }

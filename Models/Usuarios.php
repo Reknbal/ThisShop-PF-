@@ -1,7 +1,6 @@
 <?php
 
 use Laminas\Diactoros\Response\JsonResponse;
-
 require_once __DIR__ . '/../Settings/db.php';
 
 class Usuarios{
@@ -34,32 +33,6 @@ class Usuarios{
         }
     }
 
-    public function getAllUsers(){
-        $query = 'SELECT * FROM usuarios';
-
-        try {
-            $stmt = $this->con->prepare($query);
-            $stmt->execute();
-            
-            if ($stmt->error){
-                throw new Exception('Error al mostrar usuarios');
-            }
-            $res = $stmt->get_result();
-            $data_arr = [];
-
-            if($res->num_rows > 0){
-                while($data = $res->fetch_assoc()){
-                    array_push($data_arr,$data);
-                }
-                return $data_arr;
-            }
-            return $data_arr;
-        } catch (\Throwable $th) {
-            return ['message' => $th->getMessage()];
-        }
-
-    }
-
     //Registro de usuario
     public function createUser($data, $membresia = null)
     {
@@ -86,7 +59,7 @@ class Usuarios{
             return ['message' => $th->getMessage()];
         }
     }
-    private function actMembresia($email){
+    public function actMembresia($email){
         $query = 'UPDATE usuarios SET membresia = 1 WHERE email = ?';
         try {
             $stmt = $this->con->prepare($query);
@@ -101,7 +74,7 @@ class Usuarios{
         }
     }
 
-    //Método pago
+    //Método pago VER 
     public function pagoMembresia($membresia,$email,$data){
         //obtengo el usuario por email, primero
         $query1 = 'SELECT id_usuario FROM usuarios WHERE email = ?';
@@ -133,6 +106,24 @@ class Usuarios{
         
 
     }
+    //DELETE pago
+    public function deletePago($id_pago){
+         $query = 'DELETE FROM pagos WHERE id_pago = ?';
+
+        try {
+            $stmt = $this->con->prepare($query);
+            $stmt->bind_param('i',$id_pago);
+            $stmt->execute();
+
+            if ($stmt->error){
+                throw new Exception('Error al eliminar usuario');
+            }
+            return ['message' => 'Usuario eliminado satisfactoriamente'];
+        } catch (\Throwable $th) {
+            return ['message' => $th->getMessage()];
+        }
+    }
+    
     //Método update: contraseña
     public function updatePass($email,$newPass){
         
