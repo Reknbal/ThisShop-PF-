@@ -42,6 +42,7 @@ public function getAll()
 }
 
 public function getOne($id=null,$categoria=null,$nombreTienda=null){
+    //Busqueda segun id de tienda
     if (!is_null($id))   {
          
   $query='SELECT * FROM negocio WHERE id_negocio=?';
@@ -71,11 +72,11 @@ public function getOne($id=null,$categoria=null,$nombreTienda=null){
 
     }
 
-
     catch(\Throwable $th){
         return new JsonResponse(['Message'=>$th->getMessage()]);
     }
     }
+    //Busqueda segun categoria
       if (!is_null($categoria))   {
          
   $query='SELECT * FROM negocio WHERE negocioCategoria = ? ORDER BY nombre_negocio DESC';
@@ -108,6 +109,7 @@ public function getOne($id=null,$categoria=null,$nombreTienda=null){
         return new JsonResponse(['Message'=>$th->getMessage()]);
     }
     } 
+    // Busqueda segun nombre
   $query='SELECT * FROM negocio WHERE nombre_negocio = ? ORDER BY nombre_negocio DESC';
     try{
         $stmt=$this->con->prepare($query);
@@ -165,7 +167,7 @@ public function update($id,$data){
             throw new Exception('Error al actualizar los datos');
     }
     return ['Message'=>'Datos actualizados correctamente'];
-}
+    }
     catch(\Throwable $th){
         return new JsonResponse(['Message'=>$th->getMessage()]);
     }
@@ -182,7 +184,7 @@ public function delete($id){
             throw new Exception('Error al eliminar los datos');
     }
     return ['Message'=>'Datos eliminados correctamente'];
-}
+    }
     catch(\Throwable $th){
         return new JsonResponse(['Message'=>$th->getMessage()]);
     }
