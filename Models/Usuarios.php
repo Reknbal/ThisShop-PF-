@@ -1,7 +1,6 @@
 <?php
 
 use Laminas\Diactoros\Response\JsonResponse;
-
 require_once __DIR__ . '/../Settings/db.php';
 
 class Usuarios{
@@ -34,32 +33,6 @@ class Usuarios{
         }
     }
 
-    public function getAllUsers(){
-        $query = 'SELECT * FROM usuarios';
-
-        try {
-            $stmt = $this->con->prepare($query);
-            $stmt->execute();
-            
-            if ($stmt->error){
-                throw new Exception('Error al mostrar usuarios');
-            }
-            $res = $stmt->get_result();
-            $data_arr = [];
-
-            if($res->num_rows > 0){
-                while($data = $res->fetch_assoc()){
-                    array_push($data_arr,$data);
-                }
-                return $data_arr;
-            }
-            return $data_arr;
-        } catch (\Throwable $th) {
-            return ['message' => $th->getMessage()];
-        }
-
-    }
-
     //Registro de usuario
     public function createUser($data, $membresia = null)
     {
@@ -86,56 +59,9 @@ class Usuarios{
             return ['message' => $th->getMessage()];
         }
     }
-    private function actMembresia($email){
-        $query = 'UPDATE usuarios SET membresia = 1 WHERE email = ?';
-        try {
-            $stmt = $this->con->prepare($query);
-            $stmt->bind_param('s',$email);
-            $stmt->execute();
-
-            if($stmt->error){
-                throw new Exception('Error al activar la membresía');
-            }
-        } catch (\Throwable $th) {
-            return ['message' => $th->getMessage()];
-        }
-    }
-
-    //Método pago
-    public function pagoMembresia($membresia,$email,$data){
-        //obtengo el usuario por email, primero
-        $query1 = 'SELECT id_usuario FROM usuarios WHERE email = ?';
-        $stmt = $this->con->prepare($query1);
-        $stmt->bind_param('s',$email); 
-
-        $res = $stmt->get_result();
-
-        if($res->num_rows > 0){
-            $fila = $res->fetch_assoc();
-            $id_usu = $fila['id_usuario'];
-
-            if($membresia = 1){
-            $query = 'INSERT INTO pagos (fecha_pago, monto_pago, metodo_pago, id_usuario) VALUES (?,?,?,?)';
-            
-            try {
-                $stmt = $this->con->prepare($query);
-                $stmt->bind_param('sdsi',$data['fecha_pago'],$data['monto_pago'],$data['metodo_pago'],$id_usu);
-                $stmt->execute();
-
-                if($stmt->error){
-                    throw new Exception('Error al cargar el pago');
-                }
-            } catch (\Throwable $th) {
-                return ['message' => $th->getMessage()];
-            }
-        }
-        }
-        
-
-    }
+   
     //Método update: contraseña
     public function updatePass($email,$newPass){
-        
         //Verifico si el usuario existe primero
         $user = $this->getUserEmail($email);
         if(empty($user)){
@@ -187,7 +113,7 @@ class Usuarios{
     }
 
     //Eliminar usuario
-    public function delete($email)
+    public function deleteUser($email)
     {
         //Verifico si el usuario existe
         $user = $this->getUserEmail($email);
@@ -210,4 +136,98 @@ class Usuarios{
             return ['message' => $th->getMessage()];
         }
     }
-}
+    //------------------MEMBRESIA----------
+ public function actMembresia($email){
+        $query = 'UPDATE usuarios SET membresia = 1 WHERE email = ?';
+        try {
+            $stmt = $this->con->prepare($query);
+            $stmt->bind_param('s',$email);
+            $stmt->execute();
+
+            if($stmt->error){
+                throw new Exception('Error al activar la membresía');
+            }
+        } catch (\Throwable $th) {
+            return ['message' => $th->getMessage()];
+        }
+    }
+    // -------------------PAGOS--------------
+    // METODO PAGO MOSTRAR
+    public function getPagoById($id_pago)
+    {
+        $query = 'SELECT * FROM pagos WHERE id_usuario = ? LIMIT 1';
+        
+        try {
+            $stmt = $this->con->prepare($query);
+            $stmt->bind_param('i',$id_pago);
+            $stmt->execute();
+            if ($stmt->error){
+            throw new Exception('Error al obtener los datos de pago');
+            }
+            $res = $stmt->get_result();
+
+            $data = $res->fetch_assoc();
+            return $data ?: [];
+
+        } catch (\Throwable $th) {
+            return ['message' => $th->getMessage()];
+        }
+    }
+    //Método pago CARGAR 
+    public function pagoMembresia($email,$data){
+        //obtengo el usuario por email, primero
+        $query1 = 'SELECT membresia, id_usuario FROM usuarios WHERE email = ?';
+        $stmt = $this->con->prepare($query1);
+        $stmt->bind_param('s',$email); 
+
+        $res = $stmt->get_result();
+
+        if($res->num_rows > 0){
+            $fila = $res->fetch_assoc();
+            $membresia = $fila['membresia'];
+            $id_usu=$fila['id_usuario'];
+
+            if($membresia == 1){
+            $query = 'INSERT INTO pagos (monto_pago, metodo_pago, id_usuario) VALUES (?,?,?)';
+            
+            try {
+                $stmt = $this->con->prepare($query);
+                $stmt->bind_param('dsi',$data['monto_pago'],$data['metodo_pago'],$id_usu);
+                $stmt->execute();
+
+                if($stmt->error){
+                    throw new Exception('Error al cargar el pago');
+                }
+            } catch (\Throwable $th) {
+                return ['message' => $th->getMessage()];
+            }
+        }
+        }
+        
+    }
+    //DELETE pago
+    public function deletePago($id_pago,$email){
+        $query1='UPDATE usuarios SET membresia = 0 WHERE email = ?';  
+        try{
+            $stmt = $this->con->prepare($query1);
+            $stmt->bind_param('s',$email);
+            $stmt->execute();
+
+            if ($stmt->error){
+                throw new Exception('Error al actualizar datos del usuario');
+            }  
+            $query = 'DELETE FROM pagos WHERE id_pago = ?';
+      
+            $stmt = $this->con->prepare($query);
+            $stmt->bind_param('i',$id_pago);
+            $stmt->execute();
+
+            if ($stmt->error){
+                throw new Exception('Error al dar de baja');
+            }
+            return ['message' => 'Membresia dado de baja exitosamente'];
+        } catch (\Throwable $th) {
+            return ['message' => $th->getMessage()];
+        }
+    }
+    }

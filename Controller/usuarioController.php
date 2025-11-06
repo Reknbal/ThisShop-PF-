@@ -4,10 +4,10 @@ use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\ServerRequest;
 
 class UsuarioController{
+//---------------------CONTROLES USUARIOS-------------
+// GET
 public function getByEmail($email){
-        //CORREGIR. NO ES POR ID ES POR EMAIL.
-        //agregar preg y listo   
-                    
+      
         if(!preg_match("/^[a-zA-Z0-9](?:[a-zA-Z0-9._%+-]{0,63})@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/",$email))
         {
         return new JsonResponse(['Message'=>'Error no es un email válido']);
@@ -15,16 +15,18 @@ public function getByEmail($email){
             $usuario= new Usuarios;
             return new JsonResponse($usuario->getUserEmail($email));
 }
-
+//DELETE
 public function delete($email){
      if(!preg_match("/^[a-zA-Z0-9](?:[a-zA-Z0-9._%+-]{0,63})@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/",$email))
     {   
-        return new JsonResponse(['Message'=>'Error id inválido']);
+        return new JsonResponse(['Message'=>'Error direccion de email inválida']);
     }
     $usuario=new Usuarios;
-     return new JsonResponse($usuario->delete($email));
+     return new JsonResponse($usuario->deleteUser($email));
 
 }
+
+// PUT - PERSONAL INFO
 public function updatePersonalInfo(ServerRequest $request, $email){
     $data=$request->getParsedBody();
     if(empty($data)){
@@ -38,10 +40,10 @@ public function updatePersonalInfo(ServerRequest $request, $email){
 
     if(!preg_match("/^[a-zA-Z0-9](?:[a-zA-Z0-9._%+-]{0,63})@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/",$email))
     {   
-        return new JsonResponse(['Message'=>'Error id inválido']);
+        return new JsonResponse(['Message'=>'Error direccion de email inválida']);
     }
     //valido nombre user
-    if(!preg_match('^[a-zA-Z-áéíóúÁÉÍÓÚñÑüÜ\s]+$^',$nombreUser))
+    if(!preg_match("^[a-zA-Z-áéíóúÁÉÍÓÚñÑüÜ\s]+$^",$nombreUser))
     {   
         return new JsonResponse(['Message'=>'Error nombre de usuario inválido']);
     }
@@ -67,9 +69,9 @@ public function updatePersonalInfo(ServerRequest $request, $email){
         'Numerotelefono'=>$num_Telefono
     ];
     $usuario=new Usuarios;
-   return new JsonResponse($usuario->updateUsuario($data,$email));
+   return new JsonResponse($usuario->updateUsuario($data_array,$email));
 }
-
+//POST 
 public function CreateUser(ServerRequest $request,$membresia){
     $data=$request->getParsedBody();
     if(empty($data)){
@@ -89,7 +91,7 @@ public function CreateUser(ServerRequest $request,$membresia){
     //Validar email
     if(!preg_match("/^[a-zA-Z0-9](?:[a-zA-Z0-9._%+-]{0,63})@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/",$email))
     {   
-        return new JsonResponse(['Message'=>'Error id inválido']);
+        return new JsonResponse(['Message'=>'Error direccion de email inválida']);
     }
     //valido nombre user
     if(!preg_match('^[a-zA-Z-áéíóúÁÉÍÓÚñÑüÜ\s]+$^',$nombreUser))
@@ -133,15 +135,15 @@ public function CreateUser(ServerRequest $request,$membresia){
     return new JsonResponse($usuario->createUser($data_array,$membresia));
     }
     $usuario=new Usuarios; 
-     return new JsonResponse($usuario->CreateUser($data));
+     return new JsonResponse($usuario->CreateUser($data_array));
     
 }
+//PATH - PASS
 public function updatePass($email,$newPass){
  //Validar email
-
     if(!preg_match("/^[a-zA-Z0-9](?:[a-zA-Z0-9._%+-]{0,63})@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/",$email))
     {   
-        return new JsonResponse(['Message'=>'Error id inválido']);
+        return new JsonResponse(['Message'=>'Error direccion de email inválida']);
     }
     //valida contraseña
     if(!preg_match('/^[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,}$/',$newPass))
@@ -150,17 +152,22 @@ public function updatePass($email,$newPass){
     }
     $usuario=new Usuarios;
     return $usuario->updatePass($email,$newPass);
-
 }
-// CONTROLES DE PAGO
-//GET
-    public function getPagos($id){
-        $pagos = new Usuarios; 
-     //   return new JsonResponse($pagos->getAll($id));
+//----------------- CONTROLES DE PAGO----------------
+//GET -> 
+public function getPagos($id_p){
+    //Validar id
+    if(!preg_match('/^[1-9]\d*$/',$id_p))
+        {
+        return new JsonResponse(['Message'=>'Error no es un id válido']);
+        }
+     $id_pago= (int) $id_p;
+      $pagos = new Usuarios; 
+     return new JsonResponse($pagos->getPagoById($id_pago));
     }
-    //POST
 
-    public function createPago(ServerRequest $request){
+//POST
+public function createPago(ServerRequest $request,$email){
         $data = $request->getParsedBody();
 
         if(empty($data)){
@@ -170,10 +177,16 @@ public function updatePass($email,$newPass){
 
         $monto_pago = $data->monto_pago;
         $metodo_pago = $data->metodo_pago;
-
+        //VALIDO EMAIL
+        if(!preg_match("/^[a-zA-Z0-9](?:[a-zA-Z0-9._%+-]{0,63})@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/",$email))
+            {   
+                return new JsonResponse(['Message'=>'Error direccion de email inválida']);
+            }
+            //VALIDO MONTO
         if(!preg_match('/^[+-]?\d+(\.\d+)?$/',$monto_pago)){
             return new JsonResponse(['message' => 'Monto inválido']);
         }
+        //VALIDO METODO
         if(!preg_match('/^.+$/s',$metodo_pago)){
             return new JsonResponse(['message' => 'Método de pago inválido']);
         }
@@ -183,14 +196,26 @@ public function updatePass($email,$newPass){
             'metodo_pago' => $metodo_pago
         ];
         $pago = new Usuarios;
-        //return new JsonResponse($pago->create($data_arr));
+       return new JsonResponse($pago->pagoMembresia($email,$data_arr));
     }
     
-    //DELETE
-    public function deletePago(){
+//DELETE
+public function deletePago($id_p,$email){
         
-    
-}
+     //Validar id
+    if(!preg_match('/^[1-9]\d*$/',$id_p))
+        {
+        return new JsonResponse(['Message'=>'Error no es un id válido']);
+        }
+        //Validar email
+    if(!preg_match("/^[a-zA-Z0-9](?:[a-zA-Z0-9._%+-]{0,63})@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/",$email))
+    {   
+        return new JsonResponse(['Message'=>'Error direccion de email inválida']);
+    }
+        $id_pago= (int) $id_p;
+            $pago= new Usuarios;
+            return new JsonResponse($pago->deletePago($id_pago,$email));
+    }
 
 }
 ?>
