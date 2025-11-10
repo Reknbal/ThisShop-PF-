@@ -9,7 +9,7 @@ public function __construct()
     $this->con=Database::connect();
 }
 public function getOne($id_Negocio){
-  $query='SELECT * FROM redes WHERE id_redes=?';
+  $query='SELECT * FROM redes WHERE redesNegocio=?';
     try{
         $stmt=$this->con->prepare($query);
         $stmt->bind_param('i',$id_Negocio);
@@ -41,7 +41,7 @@ public function getOne($id_Negocio){
     }
     }
 
-    public function create($data,$id_Negocio){
+public function create($data,$id_Negocio){
     $query="INSERT INTO (instagram, facebook, tiktok, redesNegocio) VALUES (?,?,?,?)";
     try{
         $stmt=$this->con->prepare($query);
@@ -57,7 +57,6 @@ public function getOne($id_Negocio){
         return new JsonResponse(['Message'=>$th->getMessage()]);
     }
 }
-
 public function update($id_Negocio,$data){
        $query="UPDATE redes SET  instagram= ?, facebook = ?, tiktok = ?  WHERE redesNegocio=?";
     try{
@@ -69,7 +68,24 @@ public function update($id_Negocio,$data){
             throw new Exception('Error al actualizar los datos');
     }
     return ['Message'=>'Datos actualizados correctamente'];
+ }
+    catch(\Throwable $th){
+        return new JsonResponse(['Message'=>$th->getMessage()]);
+    }
 }
+
+public function delete($id_Negocio){
+    $query="DELETE FROM redes WHERE id_negocio=?";
+    try{
+        $stmt=$this->con->prepare($query);
+        $stmt->bind_param('i',$id_Negocio);
+        $stmt->execute();
+
+        if($stmt->error){
+            throw new Exception('Error al eliminar los datos');
+    }
+    return ['Message'=>'Datos eliminados correctamente'];
+    }
     catch(\Throwable $th){
         return new JsonResponse(['Message'=>$th->getMessage()]);
     }
