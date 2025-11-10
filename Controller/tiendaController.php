@@ -229,7 +229,7 @@ public function deleteRedes($id){
         }
         $id_negocio = (int) $id;
         $redes= new Redes;
-        return new JsonResponse($redes->deleteRedes($id_negocio));
+        return new JsonResponse($redes->delete($id_negocio));
 }
 public function redesUpdate(ServerRequest $request, $id){
       
