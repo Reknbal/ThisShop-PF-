@@ -4,20 +4,32 @@
 * Categorias
 * Usuarios
 * Negocios
-* Membresia?
+* Membresia
 * Redes
 
 ### Datos necesarios
 *Categorias*
--id
--nombreCategoria
+* `id` int,
+* `nombreCategoria` varchar
 
 *Usuarios*
-_mejor insertar imagen diagrama de clases_
+* `id_usuario` int, 
+* `nombre_usuario` varchar,
+* `email` varchar,
+*  `contraseña` varchar,
+*  `membresia` int,
+*  `dni_usuario` int,
+*  `nombreCompleto` varchar,
+*  `num_telefono` int
 
+*Redes*
 
+ * `id_redes` int,
+ * `instagram` varchar,
+ * `facebook` varchar,
+ * `tiktok` varchar,
+ * `redesNegocio` int,
 ### Metodos/Verbos HTTP
-_nota hacer una tabla. Fijarme sintaxis_
 
 *Categorias*
 - GET (MOSTRAR)
@@ -26,22 +38,22 @@ _nota hacer una tabla. Fijarme sintaxis_
 - GET (MOSTRAR)
 - CREATE/PUT (CREAR UNO NUEVO)
 - DELETE (ELIMINAR)
-- PATH? (ACTUALIZAR)
+- PATCH (ACTUALIZAR)
 
 *Negocios*
 - GET (MOSTRAR)
 - CREATE/PUT (CREAR UNO NUEVO)
 - DELETE (ELIMINAR)
-- PATH? (ACTUALIZAR)
+- PUT (ACTUALIZAR)
 
 *Redes*
 - GET (MOSTRAR)
 - CREATE/PUT (CREAR UNO NUEVO)
 - DELETE (ELIMINAR)
-- PATH? (ACTUALIZAR)
+- PUT (ACTUALIZAR)
 
 *Membresia*
-- GET (MOSTRAR DATOS DE LA MISMA COMO FECHA DE ALTA?)
+- GET (MOSTRAR)
 - DELETE (EQUIVALENTE A DAR DE BAJA)
 - CREATE (EQUIVALENTE A SUSCRIBIRSE)
 
