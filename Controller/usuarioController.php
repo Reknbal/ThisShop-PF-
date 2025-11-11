@@ -55,7 +55,7 @@ public function updatePersonalInfo(ServerRequest $request, $email){
     //VALIDO NOMBRE COMPLETO REAL
     if(!preg_match('^[a-zA-Z-áéíóúÁÉÍÓÚñÑüÜ\s]+$^',$nombreCompleto))
     {   
-        return new JsonResponse(['Message'=>'Error id inválido']);
+        return new JsonResponse(['Message'=>'Error caracteres inválido']);
     }
     //VALIDO NUM CELULAR
     if(!preg_match("/^(?:\d{6}|\d{8}|\d{10})$/",$num_Telefono))
